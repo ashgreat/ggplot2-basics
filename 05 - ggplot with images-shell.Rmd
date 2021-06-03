@@ -16,7 +16,7 @@ library(ggplot2)
 library(grid)
 library(png)
 library(jpeg)
-library(here)
+
 ```
 
 ## Use `annotation_custom` to include a `grob` or graphical object
