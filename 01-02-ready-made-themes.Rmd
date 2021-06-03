@@ -44,11 +44,6 @@ Now we will modify this base plot using different themes. Let's start with `hrbr
 
 ```{r}
 base +
-  theme_ipsum_inter()
-```
-
-```{r}
-base +
   theme_ipsum_rc()
 ```
 ```{r}
