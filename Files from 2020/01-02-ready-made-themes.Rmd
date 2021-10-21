@@ -1,0 +1,84 @@
+---
+title: "Ready made themes"
+subtitle: "Demo using ggthemes and hrbrthemes"
+author: "Ashwin Malshe"
+date: "`r Sys.Date()`"
+output: tint::tintHtml
+
+---
+
+```{r setup, include=FALSE}
+library(tint)
+# invalidate cache when the package version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tint'))
+
+library(tidyverse)
+library(ggthemes)
+library(hrbrthemes)
+
+```
+
+**Note that I am using a different theme for rmarkdown. This theme is based on Tufte style.**
+
+## Give me some style! Using readymade themes
+
+`ggplot2` allows fine-grain tuning of the looks of the plot. However, often we may be content with ready made themes. R ecosystem has created numerous themes and made them available through packages. I strongly recommend `ggthemes` and `hrbrthemes` packages. [`hrbrthemes` is written by Bob Rudis, who is a cyber security expert.]
+
+Let's create a simple base plot.
+
+```{r}
+base <- ggplot(mpg, aes(cty, hwy)) +
+  geom_point(aes(fill = manufacturer), 
+             color = "white", 
+             shape = 21, # this shape allows you to choose border color for the point
+             size = 3)
+
+base
+```
+
+Now we will modify this base plot using different themes. Let's start with `hrbrthemes`.
+
+## `hrbrthemes`
+
+
+
+```{r}
+base +
+  theme_ipsum_rc()
+```
+```{r}
+base +
+  theme_ipsum_es()
+```
+
+
+
+```{r}
+base +
+  theme_modern_rc()
+```
+
+
+## `ggthemes`
+
+`ggthemes` packs a lot of themes based on famous websites and publishers such as The Economist, and fivethirtyeight blog.
+
+```{r}
+base +
+  theme_economist()
+```
+
+```{r}
+base +
+  theme_fivethirtyeight()
+```
+
+```{r}
+base +
+  theme_hc()
+```
+
+```{r}
+base +
+  theme_solarized()
+```

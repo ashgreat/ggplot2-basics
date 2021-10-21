@@ -1,0 +1,146 @@
+---
+title: "Scales"
+author: "Ashwin Malshe"
+date: "22 October 2021"
+output: html_document
+---
+
+Install package `pacman` by running the following command in the console. **Don't run it in any R chunk below!**
+
+install.packages("pacman")
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse, lubridate, wesanderson, viridis)
+theme_set(theme_minimal())
+```
+
+In this code, I will focus on a few common uses of `scale_*_*` functions.
+
+
+## Changing the axis labels
+
+We will use `economics` data set which comes bundled with `ggplot2`. Here is the variable description:
+
+A data frame with 574 rows and 6 variables:
+
+date - Month of data collection
+pce - personal consumption expenditures, in billions of dollars
+pop - total population, in thousands
+psavert - personal savings rate
+uempmed - median duration of unemployment, in weeks
+unemploy - number of unemployed in thousands
+
+```{r}
+head(economics)
+```
+
+
+
+```{r}
+p1 <- economics %>% 
+  ggplot(aes(x = date, y = pce)) +
+  geom_line()
+
+p1
+```
+
+### Add dollar prefix to the Y axis labels
+
+```{r}
+p1 +
+  scale_y_continuous(labels = scales::dollar)
+```
+
+### Add dollar prefix to the Y axis labels **and** "bil" suffix
+
+```{r}
+p1 +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "$", suffix = " bil"))
+```
+
+### Change the breaks on the X axis to 5 year intervals.
+
+
+```{r}
+p1 +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "$", suffix = " bil")) +
+  scale_x_date(breaks = as.Date(paste0(seq(1970, 2010, 5), "-01-01")),
+               labels = lubridate::year)
+```
+
+### Change the default color palette
+
+For colors, it is better to use `mpg` data set because it has many categorical variables.
+Here I am filtering out observations with `2seater` and `minivan` because the color palettes used in `wesanderson` package has usually 5 distinct colors. So it becomes easier for me to demonstrate the use of the scale function with 5 distinct categories of `class`.
+
+```{r}
+p2 <- mpg %>% 
+  filter(!class %in% c("2seater", "minivan")) %>% 
+  ggplot(aes(x = cty, y = hwy, color = class)) +
+  geom_point(size = 4, alpha = 0.7)
+
+p2
+```
+
+
+We will use `scale_color_manual()` to change the colors manually.
+
+### `wesanderson` package 
+
+This package is based on the colors used in Wes Anderson movies: https://github.com/karthik/wesanderson
+The package developer Karthik Ram is one of the most productive and talented R developers.
+
+```{r}
+p2 +
+  scale_color_manual(values = wes_palette("Darjeeling1"))
+```
+
+Play with other color palettes.
+
+### viridis color palette
+
+**`viridis` is a collection of colorblind-friendly color palettes**
+
+Its developer [Bob Rudis](https://rud.is) is a cybersecurity expert, but he is also a fantastic R developer with several packages under his belt. Check out the `viridis` vignette: https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+
+
+```{r}
+p2 +
+  scale_color_manual(values = viridis(5))
+```
+
+Bob has also added scale functions to directly use these colors.
+
+```{r}
+p2 +
+  scale_color_viridis(discrete=TRUE)
+```
+
+Pick different palettes using `option` argument inside `scale_color_viridis()`
+
+*option* - A character string indicating the colormap option to use. Four options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default option) and "cividis" (or "E").
+
+```{r}
+p2 +
+  scale_color_viridis(option = "A", discrete=TRUE)
+```
+
+Let's take one last example with a continuous color scale.
+
+```{r}
+p3 <- mpg %>% 
+  count(class) %>% 
+  ggplot(aes(x = reorder(class, -n), y = n, fill = n)) +
+  geom_col()
+
+p3
+  
+```
+```{r}
+p3 +
+  scale_fill_viridis(direction = -1)
+  
+```

@@ -1,0 +1,141 @@
+---
+title: "Annotations"
+author: "Ashwin Malshe"
+date: "22 October 2021"
+output: 
+  html_document:
+    fig_retina: 1
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse, showtext, jpeg, png)
+theme_set(theme_minimal())
+```
+
+We will use `economics` data set which comes bundled with `ggplot2`. Here is the variable description:
+
+A data frame with 574 rows and 6 variables:
+
+date - Month of data collection
+pce - personal consumption expenditures, in billions of dollars
+pop - total population, in thousands
+psavert - personal savings rate
+uempmed - median duration of unemployment, in weeks
+unemploy - number of unemployed in thousands
+
+
+## Text annotations
+
+
+```{r}
+p1 <- economics %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  filter(year >= 2010) %>% 
+  group_by(year) %>% 
+  summarize(psavert_mean = mean(psavert, na.rm = TRUE),
+            .groups = "drop") %>% 
+  ggplot(aes(x = as.character(year), y = psavert_mean)) +
+  geom_col()
+
+p1
+```
+
+
+```{r}
+p1 +
+  geom_text(aes(label = paste0(round(psavert_mean, 2), "%")))
+```
+
+
+```{r}
+p1 +
+  geom_text(aes(label = paste0(round(psavert_mean, 2), "%")),
+            vjust = -0.3, size = 3)
+```
+```{r}
+p1 +
+  geom_text(aes(label = paste0(round(psavert_mean, 2), "%"),
+                y = 5), 
+            size = 3, color = "white")
+```
+
+```{r}
+p2 <- economics %>% 
+  mutate(unemploy_per = unemploy / pop) %>% 
+  ggplot(aes(date, unemploy_per)) +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent)
+
+p2
+```
+
+Annotate 2010 spike in the unemployment
+
+```{r}
+p2 +
+  annotate("text", label = "Mortgage crisis", 
+           x = as.Date("2010-01-01"), y = 0.051,
+           color = "red")
+```
+
+## Image annotation
+
+For annotating plots with images like `geom_text` we have to update the data set with the file path to those images. It's a bit tedious and you shoudl use it only if you really need to. The package for this is `ggimage` and the relevant geom is `geom_image()`. Read more about it here:
+https://yulab-smu.top/pkgdocs/ggimage.html
+
+
+It's far more common to use images to annotate only one point of a plot. For example, you may want to include a logo on the plot either in the background or in one corner. Here is how to do that:
+
+Download UTSA logo (stacked) from here and save it in your project directory.
+
+https://www.utsa.edu/marcomstudio/resources/logos-visual-identity/
+
+Take a note of the file extension. If it is `.png` we will use `png` packa
+
+```{r}
+ economics %>% 
+  mutate(unemploy_per = unemploy / pop) %>% 
+  ggplot(aes(date, unemploy_per)) +
+  annotation_raster(readPNG("UTSA_Logo_Website_UTSA_Logo_Stacked_Center.png"),
+                    xmin = -Inf, xmax = Inf, ymin = 0.015, ymax = 0.05, interpolate = T) +
+  geom_line(color = "#69be0f", size = 1) +
+  scale_y_continuous(labels = scales::percent)
+
+```
+
+
+```{r}
+ economics %>% 
+  mutate(unemploy_per = unemploy / pop) %>% 
+  ggplot(aes(date, unemploy_per)) +
+  annotation_raster(readPNG("UTSA_Logo_Website_UTSA_Logo_Stacked_Center.png"),
+                    xmin = as.Date("2000-01-01"), xmax = as.Date("2015-01-01"), 
+                    ymin = 0.015, ymax = 0.02, interpolate = T) +
+  geom_line(color = "#69be0f", size = 1) +
+  scale_y_continuous(labels = scales::percent)
+
+```
+
+## Use custom fonts with showtext
+
+Finally, let's use custom fonts using `showtext` package.
+
+```{r}
+font_add_google("Akronim", "akronim")
+showtext_auto()
+```
+
+
+```{r fig.showtext = TRUE}
+p2 +
+  labs(title = "Monthly Unemployment Rate") +
+  theme(plot.title = element_text(family = "akronim", size = 16))
+```
+
+
+
+
+
